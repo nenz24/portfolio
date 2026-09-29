@@ -29,24 +29,28 @@ export default function AdminPage() {
   }, []);
 
   // Fungsi untuk mengirim data baru ke database (Create)
-  const handleAddProject = async (e: React.FormEvent) => {
-    e.preventDefault(); // Mencegah halaman reload saat form disubmit
-    
-    const { error } = await supabase
-      .from("projects")
-      .insert([{ title, description, image_url: imageUrl }]);
+  const handleAddProject = async (formData: any) => {
+  try {
+    const response = await fetch('/api/admin/project', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
 
-    if (error) {
-      alert("Gagal menambahkan proyek!");
-      console.error(error);
-    } else {
-      alert("Proyek berhasil ditambahkan!");
-      setTitle(""); // Kosongkan form kembali
-      setDescription("");
-      setImageUrl("");
-      fetchProjects(); // Refresh tabel data
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Gagal menambahkan proyek');
     }
-  };
+
+    alert('Proyek berhasil ditambahkan secara aman!');
+    // Reset form atau perbarui state di sini
+  } catch (error: any) {
+    alert(error.message);
+  }
+};
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
